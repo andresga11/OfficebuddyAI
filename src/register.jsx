@@ -1,9 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+// import {
+//   facheck,
+//   faTimes,
+//   faInfoCircle,
+// } from "@fortawesome/free-solid-svg-icons";
+// import { FontawesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const Register = (props) => {
+  const userRef = useRef();
+  const errRef = useRef();
+
   const [email, setEmail] = useState("");
+  const [validEmail, setValidEmail] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
+
   const [pass, setPass] = useState("");
+  const [validPass, setValidPass] = useState(false);
+  const [passFocus, setpassFocus] = useState(false);
+
   const [name, setName] = useState("");
+  const [validName, setValidName] = useState(false);
+  const [nameFocus, setNameFocus] = useState(false);
+
+  const [matchPwd, setMatchPwd] = useState("");
+  const [validMatch, setValidMatch] = useState(false);
+  const [matchFocus, setMatchFocus] = useState(false);
+
+  const [errMsg, setErrMsg] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    const result = email;
+    console.log(result);
+    console.log(email);
+    setValidEmail(result);
+  }, [email]);
+
+  useEffect(() => {
+    const result = pass;
+    console.log(result);
+    console.log(pass);
+    setValidPass(result);
+    const match = pass === matchPwd;
+    setValidMatch(match);
+  }, [pass, matchPwd]);
+
+  useEffect(() => {
+    setErrMsg("");
+  }, [user, pass, matchPwd]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
