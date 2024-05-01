@@ -11,7 +11,11 @@ export const Register = (props) => {
     console.log(email);
 
     axios
-      .post("http://localhost:3005/registerUser", { name, email, pass })
+      .post("http://localhost:3005/api/user/registerUser", {
+        name,
+        email,
+        pass,
+      })
       .then((res) => {
         if (res.data.validation) {
           alert("Successful");

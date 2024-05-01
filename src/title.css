@@ -1,0 +1,35 @@
+/* Title.css */
+.title-bar {
+  position: fixed; /* Fixes the title bar at the top of the window */
+  top: 0;
+  left: 0;
+  width: 98%; /* Sets the width to fill the entire viewport width */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #040608;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+  z-index: 1000; /* Ensures the title bar stays on top of other content */
+}
+
+h1 {
+  margin: 0; /* Removes default margin from h1 for cleaner layout */
+  font-size: 24px;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  font-size: 16px;
+  background-color: #707070;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.logout-button:hover {
+  background-color: #3a3a3a; /* Darker shade on hover for better user feedback */
+}

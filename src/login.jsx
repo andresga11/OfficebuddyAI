@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export const Login = (props) => {
+export const Login = ({ onFormSwitch, onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
 
@@ -9,10 +9,11 @@ export const Login = (props) => {
     e.preventDefault();
 
     axios
-      .post("http://localhost:3005/validatePassword", { email, pass })
+      .post("http://localhost:3005/api/user/validatePassword", { email, pass })
       .then((res) => {
         if (res.data.validation) {
           alert("Your password is correct, Thank you!");
+          onLoginSuccess();
         } else {
           alert("Your password is not correct, Please try again");
         }
@@ -43,10 +44,7 @@ export const Login = (props) => {
         />
         <button type="submit">Log In</button>
       </form>
-      <button
-        className="link-btn"
-        onClick={() => props.onFormSwitch("register")}
-      >
+      <button className="link-btn" onClick={() => onFormSwitch("register")}>
         Don't have an account? Register here.
       </button>
     </div>
