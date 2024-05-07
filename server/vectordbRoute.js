@@ -5,13 +5,12 @@ import axios from "axios";
 import OpenAI from "openai";
 import mysql from "mysql";
 const router = express.Router();
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = "";
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // const fetch = import("node-fetch");
 
-// const OPENAI_API_KEY = "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";
-const PINECONE_API_KEY = "87df2844-e9e2-4bdf-be3b-9a5b2d88620d";
+const PINECONE_API_KEY = "";
 const PINECONE_INDEX_NAME = "queries-and-schemas-index";
 
 // Placeholder for Pinecone client setup
@@ -60,7 +59,7 @@ async function findSimilarQueriesAndSchemas(inputText, topK = 5) {
     result.id.startsWith("schema_")
   );
 
-  return { similarQueries, similarSchemas };
+  return { similarQueries, similarSchemas, embedding };
 }
 
 // async function main() {
@@ -194,50 +193,89 @@ async function getData(query) {
 
 router.post("/get_data", async (req, res) => {
   const newInputText = req.body.input;
-  const { similarQueries, similarSchemas } = await findSimilarQueriesAndSchemas(
-    newInputText
-  );
 
-  // console.log("Similar Queries:");
-  // similarQueries.forEach((query) => {
-  //   console.log(query.id, query.metadata);
-  // });
+  try {
+    const { similarQueries, similarSchemas, embedding } = await findSimilarQueriesAndSchemas(
+      newInputText
+    );
 
-  let queries = "Similar Queries:\n"; // Start with a heading and a newline
-  let schemas = "Relevant Schemas:\n";
+    // console.log("Similar Queries:");
+    // similarQueries.forEach((query) => {
+    //   console.log(query.id, query.metadata);
+    // });
 
-  similarQueries.forEach((query) => {
-    // Append each query's metadata text to the result string, with each entry on a new line
-    queries += `ID: ${query.id}\nText: ${query.metadata.text}\n\n`;
-  });
+    let queries = "Similar Queries:\n"; // Start with a heading and a newline
+    let schemas = "Relevant Schemas:\n";
 
-  similarSchemas.forEach((query) => {
-    // Append each query's metadata text to the result string, with each entry on a new line
-    schemas += `ID: ${query.id}\nText: ${query.metadata.text}\n\n`;
-  });
-
-  // Now `resultString` contains the entire formatted output as a string
-  // This can be logged to console, sent back to the client, or used elsewhere
-  // console.log(resultString); // Optional: log the result string to check its contents
-
-  let prompt = `
-Background: I need to generate an SQL statement, for a mysql server, to address the following query in a database. The database schema and contextually relevant SQL examples are provided to help generate the accurate SQL statement. It is very important you ONLY respond with the Generated SQL Statement throughtout all of our conversation. 
-\nUser Query: ${newInputText}.\n
-${queries}\n
-${schemas}
-`;
-
-  const gptResponse = await fetchChatGPTResponse(prompt);
-console.log(gptResponse);
-  // Running the getData function with a sample query
-  getData(gptResponse)
-    .then(data => {
-      return res.json({ status: "ok", bot: data });
-    })
-    .catch(err => {
-      console.error('Error fetching data:', err);
+    similarQueries.forEach((query) => {
+      // Append each query's metadata text to the result string, with each entry on a new line
+      queries += `ID: ${query.id}\nText: ${query.metadata.text} \nSql: ${query.metadata.sql}\n\n`;
     });
 
+    similarSchemas.forEach((query) => {
+      // Append each query's metadata text to the result string, with each entry on a new line
+      schemas += `ID: ${query.id}\nText: ${query.metadata.text}\n\n`;
+    });
+
+    // Now `resultString` contains the entire formatted output as a string
+    // This can be logged to console, sent back to the client, or used elsewhere
+    // console.log(resultString); // Optional: log the result string to check its contents
+
+    let prompt = `
+  Background: I need to generate an SQL statement, for a mysql server, to address the following query in a database. The database schema and contextually relevant SQL examples are provided to help generate the accurate SQL statement. It is very important you ONLY respond with the Generated SQL Statement throughtout all of our conversation. 
+  \nUser Query: ${newInputText}.\n
+  ${queries}\n
+  ${schemas}
+  `;    
+
+    const sqlStatement = await fetchChatGPTResponse(prompt);
+
+    const data = await getData(sqlStatement);
+    res.json({ status: "ok", bot: data, sql: sqlStatement, embedding: embedding });
+
+    // After displaying data, you might handle user feedback here or on client-side
+    // Assuming you have an endpoint or method to receive user confirmation
+
+  } catch (error) {
+      console.error('Error fetching data or processing request:', error);
+      res.status(500).json({ status: "error", message: "Sorry, can you try again?" });
+  }
+
+});
+
+
+// Endpoint to handle user feedback and store data in VectorDB
+router.post("/feedback", async (req, res) => {
+  const { userInput, sqlStatement, feedback, embedding } = req.body;
+
+  if (feedback.toLowerCase() === "yes") {
+    // Corrected the filter to use the value of userInput
+    const response = await index.namespace("queries").query({
+      vector: embedding,
+      topK: 5, // Adjust according to your needs
+      filter: {
+        "text": { "$eq": userInput } // Use the value of userInput variable
+      }
+    });
+
+    // Check if the response is empty or undefined based on your database's response structure
+    if (response.matches.length === 0) {
+      // Store in VectorDB
+      const metadata = { sql: sqlStatement, text: userInput };
+      await index.namespace("queries").upsert([
+        {
+          id: `query_${new Date().toISOString()}`, // Unique ID for the query
+          values: await embedText(userInput), // Assuming embedText is defined elsewhere
+          metadata: metadata
+        },
+      ]);
+      res.json({ status: "ok", message: "Data stored successfully!" });
+    } else {
+      res.json({ status: "ok", message: "Feedback noted, no data stored!" });
+    }
+  } else {
+    res.json({ status: "ok", message: "Feedback noted, no data stored." });
+  }
 });
 
 export default router;
