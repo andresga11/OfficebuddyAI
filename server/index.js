@@ -8,6 +8,7 @@ import cors from "cors";
 // import sqlite3 from "sqlite3";
 import userRoute from "./userRoute.js";
 import vectordbRoute from "./vectordbRoute.js";
+
 // import mysqlRoute from "./mysqlServer.js"; 
 
 const app = express();
@@ -28,7 +29,20 @@ app.use(express.json());
 //   console.log("Connected to the access database.");
 // });
 
-app.listen(3005, () => console.log("listening at port 3005"));
+app.get("/", function (req,res) {
+  res.sendFile(
+    path.join(__dirname,"../client/build/index.html"),
+    function (err) {
+      if (err) {
+        res.status(500).send(err);
+      }
+    }
+  );
+});
+
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => console.log("listening at port " + PORT));
 
 app.use("/api/user", userRoute);
 app.use("/api/vectordb", vectordbRoute);

@@ -4,13 +4,16 @@ import express from "express";
 import axios from "axios";
 import OpenAI from "openai";
 import mysql from "mysql";
+import dotenv from 'dotenv';
+dotenv.config();
 const router = express.Router();
-const OPENAI_API_KEY = "";
+
+const OPENAI_API_KEY = process.env.OPEN_AI_KEY;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // const fetch = import("node-fetch");
 
-const PINECONE_API_KEY = "";
+const PINECONE_API_KEY = process.env.PINECONE_AI_KEY
 const PINECONE_INDEX_NAME = "queries-and-schemas-index";
 
 // Placeholder for Pinecone client setup
