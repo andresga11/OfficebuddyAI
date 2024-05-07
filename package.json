@@ -2,26 +2,29 @@
   "name": "officebuddyai",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "client/src/index.js",
   "dependencies": {
+    "@expo/metro-runtime": "^3.2.1",
     "@pinecone-database/pinecone": "^2.2.0",
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "expo": "^51.0.0",
     "express": "^4.18.2",
+    "metro-config": "^0.80.9",
     "mysql": "^2.18.1",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.3",
     "openai": "^4.38.2",
+    "react-dom": "18.2.0",
+    "react-native": "^0.74.1",
+    "react-native-web": "~0.19.10",
     "sqlite3": "^5.1.7"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd server && node index.js",
-    "postinstall": "npm rebuild sqlite3 --build-from-source"
+    "start": "cd server && node index.js"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC"

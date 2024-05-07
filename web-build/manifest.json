@@ -1,0 +1,8 @@
+{
+  "description": "",
+  "display": "standalone",
+  "lang": "en",
+  "name": "officebuddyai",
+  "short_name": "officebuddyai",
+  "start_url": "/?utm_source=web_app_manifest"
+}
