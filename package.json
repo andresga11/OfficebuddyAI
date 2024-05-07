@@ -707,8 +707,6 @@
     "stop-iteration-iterator": "^1.0.0",
     "string-length": "^4.0.2",
     "string-natural-compare": "^3.0.1",
-    "string-width": "^4.2.3",
-    "string-width-cjs": "^4.2.3",
     "string.prototype.matchall": "^4.0.10",
     "string.prototype.trim": "^1.2.8",
     "string.prototype.trimend": "^1.0.7",
