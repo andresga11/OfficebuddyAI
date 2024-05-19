@@ -11,13 +11,10 @@ const router = express.Router();
 const OPENAI_API_KEY = process.env.OPEN_AI_KEY;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// const fetch = import("node-fetch");
 
 const PINECONE_API_KEY = process.env.PINECONE_AI_KEY
 const PINECONE_INDEX_NAME = "queries-and-schemas-index";
 
-// Placeholder for Pinecone client setup
-// Initialize Pinecone client (example uses hypothetical SDK)
 const pc = new Pinecone({
   apiKey: PINECONE_API_KEY,
 });
@@ -65,47 +62,6 @@ async function findSimilarQueriesAndSchemas(inputText, topK = 5) {
   return { similarQueries, similarSchemas, embedding };
 }
 
-// async function main() {
-//   const newInputText =
-//     "List employees who are managers and their current department";
-//   const { similarQueries, similarSchemas } = await findSimilarQueriesAndSchemas(
-//     newInputText
-//   );
-
-//   console.log("Similar Queries:");
-//   similarQueries.forEach((query) => {
-//     console.log(query.id, query.metadata);
-//   });
-
-//   console.log("\nSimilar Schemas:");
-//   similarSchemas.forEach((schema) => {
-//     console.log(schema.id, schema.metadata);
-//   });
-// }
-
-// async function fetchChatGPTResponse(prompt) {
-//   const url = "https://api.openai.com/v1/chat/completions";
-
-//   try {
-//     const response = await axios.post(
-//       url,
-//       {
-//         model: "gpt-4", // Specify the model
-//         messages: [{ role: "assistant", content: prompt }],
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${OPENAI_API_KEY}`,
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching response:", error);
-//   }
-// }
 
 async function fetchChatGPTResponse(prompt) {
   const completion = await openai.chat.completions.create({
@@ -118,49 +74,14 @@ async function fetchChatGPTResponse(prompt) {
     model: "gpt-4",
   });
 
-  // Make sure to access the response correctly based on the API documentation
   if (completion && completion.choices && completion.choices.length > 0) {
     return completion.choices[0].message.content;
   } else {
     console.error("No valid response received");
-    return null; // Handle cases where no response is received
+    return null; 
   }
 }
 
-
-// async function getData(query) {
-
-//   var data = "";
-
-//   const connection = mysql.createConnection({
-//     host: "localhost", 
-//     user: "user1",
-//     password: "password123",
-//     database: "employees",
-//     });
-  
-//     // Connect to the database
-//     connection.connect((err) => {
-//     if (err) {
-//       return console.error("error connecting: " + err.stack);
-//     }
-//     console.log("connected as id " + connection.threadId);
-//     });
-  
-//   // Perform queries
-//     connection.query(query, (err, results, fields) => {
-//     if (err) throw err;
-  
-//     data = results;
-
-//     });
-
-//     // Close the connection
-//     connection.end();
-
-
-//   return data;
-// }
 
 
 // Async function to get data from the database
@@ -202,10 +123,6 @@ router.post("/get_data", async (req, res) => {
       newInputText
     );
 
-    // console.log("Similar Queries:");
-    // similarQueries.forEach((query) => {
-    //   console.log(query.id, query.metadata);
-    // });
 
     let queries = "Similar Queries:\n"; // Start with a heading and a newline
     let schemas = "Relevant Schemas:\n";
@@ -220,9 +137,6 @@ router.post("/get_data", async (req, res) => {
       schemas += `ID: ${query.id}\nText: ${query.metadata.text}\n\n`;
     });
 
-    // Now `resultString` contains the entire formatted output as a string
-    // This can be logged to console, sent back to the client, or used elsewhere
-    // console.log(resultString); // Optional: log the result string to check its contents
 
     let prompt = `
   Background: I need to generate an SQL statement, for a mysql server, to address the following query in a database. The database schema and contextually relevant SQL examples are provided to help generate the accurate SQL statement. It is very important you ONLY respond with the Generated SQL Statement throughtout all of our conversation. 
